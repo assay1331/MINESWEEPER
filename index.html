@@ -132,7 +132,7 @@ function init(){
   const vh=window.visualViewport?visualViewport.height:window.innerHeight;
   const top=$('wrap').getBoundingClientRect().top+window.scrollY;
   const H=Math.max(220,vh-top-$('ctrl').offsetHeight-14-42-24);
-  R=Math.max(6,Math.floor((H+2)/(s+2)));
+  R=C;
   const c0=LV[level][2],s0=(W-(c0-1)*2)/c0,r0=Math.max(6,Math.floor((H+2)/(s0+2)));
   M=Math.max(5,Math.round(r0*c0*LV[level][1]));
   B.style.setProperty("--s",s+"px");
