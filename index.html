@@ -74,9 +74,11 @@ button:active,button.on{background:var(--fg);color:var(--bg)}
 #msg.bounce{animation:bounce .5s ease-in-out infinite alternate}
 @keyframes bounce{from{transform:scale(1)}to{transform:scale(1.12)}}
 html.anim,html.anim body{overflow:hidden}
-.ring{position:fixed;width:10px;height:10px;border:2px solid var(--fg);transform:translate(-50%,-50%);pointer-events:none;z-index:45;animation:ring .6s ease-out forwards}
-@keyframes ring{0%{width:10px;height:10px}100%{width:900px;height:900px}}
-.c.bx-out{animation:bxout .5s cubic-bezier(.2,.7,.4,1) both}
+.ring{position:fixed;width:10px;height:10px;border:2px solid var(--fg);transform:translate(-50%,-50%);pointer-events:none;z-index:45;animation:ring .55s ease-out forwards}
+@keyframes ring{0%{width:10px;height:10px;opacity:1}100%{width:640px;height:640px;opacity:0}}
+#app.shake-s{animation:shakes .32s}
+@keyframes shakes{0%,100%{transform:translate(0)}15%{transform:translate(-6px,3px)}30%{transform:translate(5px,-4px)}45%{transform:translate(-4px,-2px)}60%{transform:translate(4px,3px)}80%{transform:translate(-2px,1px)}}
+.c.bx-out{animation:bxout .48s cubic-bezier(.2,.7,.4,1) both}
 @keyframes bxout{0%{transform:translate(0,0) rotate(0) scale(1)}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(0)}}
 
 .c.rn-out{animation:rnout .55s cubic-bezier(.55,0,1,.45) both}
@@ -290,13 +292,13 @@ function dirtLoop(){
   dcx.fillStyle=FG;dcx.beginPath();
   for(const p of dirt){p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.l++;dcx.rect(p.x,p.y,p.s,p.s)}
   dcx.fill();
-  dirt=dirt.filter(p=>p.l<40);
+  dirt=dirt.filter(p=>p.y<dcv.height+8&&p.x>-8&&p.x<dcv.width+8&&p.l<300);
   if(dirt.length)draf=requestAnimationFrame(dirtLoop);else{dcx.clearRect(0,0,dcv.width,dcv.height);dcv.style.display='none';draf=0}
 }
 function popDig(i,d){
   const c=cells[i],dl=Math.min(d,12)*45;
   c.style.animationDelay=dl+'ms';c.classList.add('dig');
-  if(d<=7&&dug<40){dug++;later(()=>dirtAt(i,d?4:16),dl)}
+
 }
 function unhold(i){if(cells[i])cells[i].classList.remove('hold')}
 let toastT=0,toastT2=0;
@@ -377,20 +379,21 @@ let busy=false;
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const docEl=document.documentElement;
 function shock(){
+  const ap=$('app');ap.classList.add('shake-s');setTimeout(()=>ap.classList.remove('shake-s'),340);
   const r=$('wrap').getBoundingClientRect(),el=document.createElement('div');
   el.className='ring';el.style.left=(r.left+r.width/2)+'px';el.style.top=(r.top+r.height/2)+'px';
-  document.body.appendChild(el);setTimeout(()=>el.remove(),700);
+  document.body.appendChild(el);setTimeout(()=>el.remove(),600);
 }
 const TR=[
- {out:'bx-out',inn:'rn-in',od:520,id:740,fx:shock,pre(o){
+ {out:'bx-out',inn:'rn-in',od:480,id:740,fx:shock,pre(o){
   if(!o)return TR[1].pre(false);
   const mx=Math.hypot((R-1)/2,(C-1)/2);
   return cells.map((d,i)=>{
-    const y=((i/C)|0)-(R-1)/2,x=i%C-(C-1)/2,dist=Math.hypot(x,y),a=Math.atan2(y,x)+rnd(-.35,.35),k=rnd(160,320);
+    const y=((i/C)|0)-(R-1)/2,x=i%C-(C-1)/2,dist=Math.hypot(x,y),a=Math.atan2(y,x)+rnd(-.35,.35),k=rnd(130,250);
     d.style.setProperty('--dx',Math.cos(a)*k+'px');
     d.style.setProperty('--dy',Math.sin(a)*k+'px');
-    d.style.setProperty('--rot',rnd(-200,200)+'deg');
-    return (o?dist:mx-dist)*22;
+    d.style.setProperty('--rot',rnd(-160,160)+'deg');
+    return (o?dist:mx-dist)*18;
   });
  }},
  {out:'rn-out',inn:'rn-in',od:560,id:740,pre(o){
