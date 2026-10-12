@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Minesweeper</title>
+<title>index</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DotGothic16&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#202124;--fg:#e8eaed;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -30,7 +30,7 @@ button:active,button.on{background:var(--fg);color:var(--bg)}
 #msg{height:28px;margin-top:14px;font-size:18px;letter-spacing:2px}
 .help{margin-top:8px;font-size:13px;text-align:center;line-height:1.7;max-width:420px}
 #app{display:flex;flex-direction:column;align-items:center;width:100%}
-#fx,#dg{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:50}
+#fx,#dg{display:none;position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:50}
 #flash{position:fixed;inset:0;background:var(--fg);opacity:0;pointer-events:none;z-index:40}
 #flash.go{animation:fl .6s ease-out}
 @keyframes fl{0%{opacity:1}100%{opacity:0}}
@@ -78,8 +78,7 @@ html.anim,html.anim body{overflow:hidden}
 @keyframes ring{0%{width:10px;height:10px}100%{width:900px;height:900px}}
 .c.bx-out{animation:bxout .5s cubic-bezier(.2,.7,.4,1) both}
 @keyframes bxout{0%{transform:translate(0,0) rotate(0) scale(1)}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(0)}}
-.c.bx-in{animation:bxin .65s linear backwards}
-@keyframes bxin{0%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(0);animation-timing-function:cubic-bezier(.25,.8,.35,1)}55%{transform:translate(calc(var(--dx)*-.07),calc(var(--dy)*-.07)) rotate(calc(var(--rot)*-.09)) scale(1.1);animation-timing-function:ease-in-out}80%{transform:translate(calc(var(--dx)*.025),calc(var(--dy)*.025)) rotate(calc(var(--rot)*.03)) scale(.97);animation-timing-function:ease-in-out}100%{transform:translate(0,0) rotate(0) scale(1)}}
+
 .c.rn-out{animation:rnout .55s cubic-bezier(.55,0,1,.45) both}
 @keyframes rnout{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(var(--fy)) rotate(var(--rot))}}
 .c.rn-in{animation:rnin .72s linear backwards}
@@ -173,7 +172,7 @@ function act(i,rightClick){
 }
 
 function flood(s){
-  const q=[[s,0]],seen=new Set([s]);let k=0,mx=0;dug=0;
+  const q=[[s,0]],seen=new Set([s]);let k=0,mx=0;dug=0;BR=null;
   while(k<q.length){const [i,d]=q[k++];
     if(open[i]||flag[i])continue;
     open[i]=true;left--;draw(i);popDig(i,d);mx=Math.max(mx,d);
@@ -210,11 +209,11 @@ const later=(f,ms)=>fxT.push(setTimeout(f,ms));
 function ac(){if(!sound)return null;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}catch(e){return null}}
 function tone(f,t,d,type,v,f2){const a=ac();if(!a)return;const o=a.createOscillator(),g=a.createGain(),n=a.currentTime+t;o.type=type;o.frequency.setValueAtTime(f,n);if(f2)o.frequency.exponentialRampToValueAtTime(f2,n+d);g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(a.destination);o.start(n);o.stop(n+d+.03)}
 function noise(d,v){const a=ac();if(!a)return;const n=(a.sampleRate*d)|0,buf=a.createBuffer(1,n,a.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<n;i++)ch[i]=(Math.random()*2-1)*(1-i/n);const s=a.createBufferSource();s.buffer=buf;const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(3000,a.currentTime);lp.frequency.exponentialRampToValueAtTime(120,a.currentTime+d);const g=a.createGain();g.gain.value=v;s.connect(lp);lp.connect(g);g.connect(a.destination);s.start()}
-function stopFx(){fxT.forEach(clearTimeout);fxT=[];cancelAnimationFrame(raf);parts=[];cx.clearRect(0,0,cv.width,cv.height);dirt=[];cancelAnimationFrame(draf);draf=0;dcx.clearRect(0,0,dcv.width,dcv.height);$('app').classList.remove('shake');$('flash').classList.remove('go');$('msg').className=''}
+function stopFx(){fxT.forEach(clearTimeout);fxT=[];cancelAnimationFrame(raf);parts=[];cx.clearRect(0,0,cv.width,cv.height);dirt=[];cancelAnimationFrame(draf);draf=0;dcx.clearRect(0,0,dcv.width,dcv.height);dcv.style.display='none';cv.style.display='none';BR=null;$('app').classList.remove('shake');$('flash').classList.remove('go');$('msg').className=''}
 function flash(){const f=$('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go')}
 
 function confetti(){
-  cv.width=innerWidth;cv.height=innerHeight;
+  cv.style.display='block';cv.width=innerWidth;cv.height=innerHeight;
   const W=cv.width,H=cv.height;parts=[];
   const mk=(x,y,vx,vy)=>({x,y,vx,vy,s:5+(Math.random()*8|0),r:Math.random()*6,vr:(Math.random()-.5)*.4,h:Math.random()<.4});
   const burst=()=>{for(const [x,d] of [[0,1],[W,-1]])for(let i=0;i<70;i++){const a=(-90+d*(10+Math.random()*40))*Math.PI/180,sp=10+Math.random()*12;parts.push(mk(x,H,Math.cos(a)*sp,Math.sin(a)*sp))}};
@@ -229,7 +228,7 @@ function confetti(){
       else{cx.fillStyle=FG;cx.fillRect(-p.s/2,-p.s/2,p.s,p.s)}
       cx.restore()}
     parts=parts.filter(p=>p.y<H+20);
-    if(now-st<2800||parts.length)raf=requestAnimationFrame(loop);else cx.clearRect(0,0,W,H);
+    if(now-st<2800||parts.length)raf=requestAnimationFrame(loop);else{cx.clearRect(0,0,W,H);cv.style.display='none'}
   };
   raf=requestAnimationFrame(loop);
 }
@@ -271,36 +270,28 @@ const WRONG=spr([
 '..#.#..',
 '.#...#.',
 '#.....#']);
-const SHOVEL=spr([
-'...#####...',
-'.....#.....',
-'.....#.....',
-'.....#.....',
-'.....#.....',
-'....###....',
-'...#####...',
-'...#h###...',
-'...#####...',
-'....###....',
-'.....#.....']);
+
 let lastTouch=0,G=null,dug=0,dirt=[],draf=0;
 const dcv=$('dg'),dcx=dcv.getContext('2d');
 function thump(){const w=$('wrap');w.classList.remove('thump');void w.offsetWidth;w.classList.add('thump')}
 function digSound(d){thump();noise(.14,.22);tone(120,.07,.18,'sine',.4,45);for(let k=0;k<Math.min(d,8);k++)tone(160+Math.random()*100,.14+k*.045,.05,'triangle',.05)}
+let BR=null;
 function dirtAt(i,n){
-  const r=cells[i].getBoundingClientRect();
+  if(!BR)BR=B.getBoundingClientRect();
+  dcv.style.display='block';
   if(dcv.width!==innerWidth||dcv.height!==innerHeight){dcv.width=innerWidth;dcv.height=innerHeight}
-  const x=r.left+r.width/2,y=r.top+r.height/2;
+  const cs=(BR.width-(C-1)*2)/C,x=BR.left+(i%C)*(cs+2)+cs/2,y=BR.top+((i/C)|0)*(cs+2)+cs/2;
   for(let k=0;k<n;k++){const a=-Math.PI/2+(Math.random()-.5)*2.2,sp=2+Math.random()*5;
     dirt.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,s:2+(Math.random()*4|0),l:0})}
   if(!draf)draf=requestAnimationFrame(dirtLoop);
 }
 function dirtLoop(){
   dcx.clearRect(0,0,dcv.width,dcv.height);
-  dcx.fillStyle=FG;
-  for(const p of dirt){p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.l++;dcx.fillRect(p.x,p.y,p.s,p.s)}
+  dcx.fillStyle=FG;dcx.beginPath();
+  for(const p of dirt){p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.l++;dcx.rect(p.x,p.y,p.s,p.s)}
+  dcx.fill();
   dirt=dirt.filter(p=>p.l<40);
-  if(dirt.length)draf=requestAnimationFrame(dirtLoop);else{dcx.clearRect(0,0,dcv.width,dcv.height);draf=0}
+  if(dirt.length)draf=requestAnimationFrame(dirtLoop);else{dcx.clearRect(0,0,dcv.width,dcv.height);dcv.style.display='none';draf=0}
 }
 function popDig(i,d){
   const c=cells[i],dl=Math.min(d,12)*45;
@@ -312,7 +303,7 @@ let toastT=0,toastT2=0;
 function flagToast(i){
   const t=$('toast'),r=cells[i].getBoundingClientRect(),placed=flag[i];
   t.innerHTML=FLAG+'<span>'+(placed?'PLACED':'REMOVED')+'</span>';
-  t.className='';void t.offsetWidth;t.className='on '+(placed?'add':'del');if(placed)dirtAt(i,10);
+  t.className='';void t.offsetWidth;t.className='on '+(placed?'add':'del');
   t.style.left=Math.min(innerWidth-70,Math.max(70,r.left+r.width/2))+'px';
   t.style.top=Math.max(56,r.top-14)+'px';
   clearTimeout(toastT);clearTimeout(toastT2);toastT=setTimeout(()=>t.classList.add('out'),700);toastT2=setTimeout(()=>{t.className=''},970);
