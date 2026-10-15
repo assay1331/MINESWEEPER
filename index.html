@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>index</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5462520679066411"
+     crossorigin="anonymous"></script>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DotGothic16&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#202124;--fg:#e8eaed;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -55,6 +57,9 @@ button:active,button.on{background:var(--fg);color:var(--bg)}
 @keyframes drop{0%{transform:translateY(-16px) rotate(-30deg)}100%{transform:none}}
 @keyframes wiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-22deg)}50%{transform:rotate(18deg)}80%{transform:rotate(-10deg)}}
 #toast.add{background:var(--fg);color:var(--bg)}
+#adbox{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--bg);color:var(--fg);font-size:18px;letter-spacing:2px}
+#adbox.on{display:flex}
+#adn{font-size:72px}
 #toast svg{width:22px;height:22px;display:block}
 #mines.tick{animation:tick .35s}
 @keyframes tick{0%{background:var(--fg);color:var(--bg)}100%{background:var(--bg);color:var(--fg)}}
@@ -103,6 +108,7 @@ html.anim,html.anim body{overflow:hidden}
 </div>
 <div id="wrap"><div id="board"></div></div>
 <div class="ctrl" id="ctrl">
+  <button id="revive" style="display:none">▶ Revive (Ad)</button>
   <button id="reset">Restart</button>
 </div>
 <div id="menu">
@@ -111,6 +117,7 @@ html.anim,html.anim body{overflow:hidden}
 </div>
 <div id="msg"></div>
 <div id="toast"></div>
+<div id="adbox"><div>AD</div><div id="adn">3</div><div>Revive after the ad</div></div>
 
 </div>
 <script>
@@ -149,6 +156,7 @@ function init(){
   over=false;started=false;left=R*C-M;
   clearInterval(timer);
   stopFx();$('ctrl').classList.remove('on');
+  revived=false;$('revive').style.display='none';
   $("time").textContent="000";$("mines").textContent=pad(M);$("msg").textContent="";
 }
 
@@ -347,7 +355,7 @@ B.addEventListener('pointerup',e=>{
 B.addEventListener('pointercancel',()=>{lastTouch=Date.now();if(G){clearTimeout(G.t);unhold(G.i)}G=null});
 
 function lose(hit){
-  end();
+  end();lastHit=hit;tEnd=Date.now();
   cells[hit].className='c x';cells[hit].innerHTML=MINE;
   flash();$('app').classList.add('shake');later(()=>$('app').classList.remove('shake'),650);
   noise(.9,.5);tone(170,0,.7,'sawtooth',.25,30);
@@ -358,7 +366,7 @@ function lose(hit){
   t.sort(()=>Math.random()-.5);
   const step=Math.min(90,1400/Math.max(1,t.length));
   t.forEach((i,k)=>later(()=>{cells[i].className='c o';cells[i].innerHTML=mine[i]?MINE:WRONG;tone(110,0,.07,'triangle',.1)},300+k*step));
-  later(()=>{$('msg').textContent='GAME OVER';$('msg').className='blink';$('ctrl').classList.add('on')},300+t.length*step);
+  later(()=>{$('msg').textContent='GAME OVER';$('msg').className='blink';$('revive').style.display=revived?'none':'';$('ctrl').classList.add('on')},300+t.length*step);
 }
 
 function win(){
@@ -375,7 +383,26 @@ function win(){
   later(()=>{$('msg').textContent='★ CLEAR! ★ '+sec+'s';$('msg').className='bounce';$('ctrl').classList.add('on')},300);
 }
 
-let busy=false;
+let busy=false,revived=false,lastHit=-1,tEnd=0;
+// Rewarded ad hook: replace the body with your ad SDK call.
+// Call onReward() only after the user has finished watching the ad.
+function showRewardedAd(onReward){
+  const box=$('adbox'),n=$('adn');let sec=3;
+  n.textContent=sec;box.classList.add('on');
+  const iv=setInterval(()=>{sec--;if(sec<=0){clearInterval(iv);box.classList.remove('on');onReward()}else n.textContent=sec},1000);
+}
+function revive(){
+  if(!over||revived||busy)return;
+  showRewardedAd(()=>{
+    revived=true;
+    stopFx();$('ctrl').classList.remove('on');$('msg').textContent='';
+    flag[lastHit]=true;
+    t0+=Date.now()-tEnd;
+    timer=setInterval(()=>$('time').textContent=pad(Math.floor((Date.now()-t0)/1000)),250);
+    for(let i=0;i<R*C;i++)draw(i);
+    count();over=false;
+  });
+}
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const docEl=document.documentElement;
 function shock(){
@@ -425,6 +452,7 @@ function swap(t){
   setTimeout(()=>{init();spawnIn(t);busy=false},Math.max(...dl)+t.od+40);
 }
 $("reset").onclick=()=>swap(TR[0]);
+$("revive").onclick=revive;
 
 
 $("tabs").onclick=e=>{
