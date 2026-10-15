@@ -381,7 +381,7 @@ function win(){
   [1047,1319,1568].forEach(f=>tone(f,.55,.9,'square',.08));
   tone(2093,.55,.9,'triangle',.06);
   confetti();
-  later(()=>{$('msg').textContent='★ CLEAR! ★ '+sec+'s';$('msg').className='bounce';$('ctrl').classList.add('on')},300);
+  later(()=>{$('msg').textContent='★ CLEAR! ★ '+sec+'s';$('msg').className='bounce';$('revive').style.display='none';$('ctrl').classList.add('on')},300);
 }
 
 let busy=false,revived=false,lastHit=-1,tEnd=0;
@@ -395,7 +395,7 @@ function showRewardedAd(onReward){
 function revive(){
   if(!over||revived||busy)return;
   showRewardedAd(()=>{
-    revived=true;
+    revived=true;$('revive').style.display='none';
     stopFx();$('ctrl').classList.remove('on');$('msg').textContent='';
     flag[lastHit]=true;
     t0+=Date.now()-tEnd;
