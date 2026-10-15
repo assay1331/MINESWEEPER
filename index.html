@@ -223,8 +223,9 @@ function stopFx(){fxT.forEach(clearTimeout);fxT=[];cancelAnimationFrame(raf);par
 function flash(){const f=$('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go')}
 
 function confetti(){
-  cv.style.display='block';cv.width=innerWidth;cv.height=innerHeight;
-  const W=cv.width,H=cv.height;parts=[];
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  cv.style.display='block';cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;cx.setTransform(dpr,0,0,dpr,0,0);
+  const W=innerWidth,H=innerHeight;parts=[];
   const mk=(x,y,vx,vy)=>({x,y,vx,vy,s:5+(Math.random()*8|0),r:Math.random()*6,vr:(Math.random()-.5)*.4,h:Math.random()<.4});
   const burst=()=>{for(const [x,d] of [[0,1],[W,-1]])for(let i=0;i<70;i++){const a=(-90+d*(10+Math.random()*40))*Math.PI/180,sp=10+Math.random()*12;parts.push(mk(x,H,Math.cos(a)*sp,Math.sin(a)*sp))}};
   burst();later(burst,700);
