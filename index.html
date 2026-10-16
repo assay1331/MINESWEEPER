@@ -28,10 +28,17 @@ button:active,button.on{background:var(--fg);color:var(--bg)}
 .c.x{background:var(--fg);color:var(--bg);outline:3px solid var(--bg);outline-offset:-5px}
 .ctrl{display:flex;visibility:hidden;gap:10px;width:var(--bw);margin-top:14px}
 .ctrl.on{visibility:visible}
+#info{width:100%;max-width:560px;margin:48px auto 0;padding:0 4px 56px;font-size:15px;line-height:1.85;text-align:left}
+#info h2{font-size:18px;letter-spacing:1px;margin:34px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--fg);font-weight:normal}
+#info p,#info li{margin:0 0 12px}
+#info ul{padding-left:20px;margin:0 0 12px}
+#info a{color:var(--fg)}
+#info nav{margin-top:40px;padding-top:14px;border-top:2px solid var(--fg);font-size:14px;display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+#info .copy{text-align:center;font-size:13px;margin-top:14px}
 .ctrl button{flex:1;padding:16px 8px;font-size:17px}
 #msg{height:28px;margin-top:14px;font-size:18px;letter-spacing:2px}
 .help{margin-top:8px;font-size:13px;text-align:center;line-height:1.7;max-width:420px}
-#app{display:flex;flex-direction:column;align-items:center;width:100%}
+#app{display:flex;flex-direction:column;align-items:center;width:100%;min-height:calc(100vh - 40px);min-height:calc(100svh - 40px)}
 #fx,#dg{display:none;position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:50}
 #flash{position:fixed;inset:0;background:var(--fg);opacity:0;pointer-events:none;z-index:40}
 #flash.go{animation:fl .6s ease-out}
@@ -120,6 +127,40 @@ html.anim,html.anim body{overflow:hidden}
 <div id="adbox"><div>AD</div><div id="adn">3</div><div>Revive after the ad</div></div>
 
 </div>
+<main id="info">
+<h2>How to Play Minesweeper</h2>
+<p>Minesweeper is a logic puzzle played on a grid of hidden squares. Some squares hide mines. Your goal is to open every safe square without ever opening a mine.</p>
+<p>When you open a square, it shows a number. The number tells you how many of the eight surrounding squares contain a mine. A square showing 1 has exactly one mine next to it, and a square showing 3 has three. If a square shows nothing, none of its neighbors are mines, so the game opens the whole empty area for you.</p>
+<h2>Controls</h2>
+<ul>
+<li><b>Touch:</b> tap a square to dig it. Press and hold for about half a second to plant or remove a flag.</li>
+<li><b>Mouse:</b> left click digs a square, and right click plants or removes a flag.</li>
+<li><b>Chording:</b> tap or click an opened number whose surrounding flags already match it, and the game opens all of its remaining neighbors at once.</li>
+<li><b>First move:</b> your first dig is always safe, so you cannot lose on the very first tap.</li>
+</ul>
+<h2>Difficulty Levels</h2>
+<p>Easy uses a 9 x 9 board, Medium uses 11 x 11, and Hard uses 14 x 14. Larger boards have smaller squares and more mines, so you have to keep track of more information at the same time. Changing the level or pressing Restart always starts a fresh board.</p>
+<h2>Strategy Tips</h2>
+<ul>
+<li><b>Start from the numbers.</b> After your first dig, look for a number whose count already equals the number of hidden squares around it. Every one of those squares is a mine.</li>
+<li><b>Flag what you are sure about.</b> Flags help you count. When a number has all of its mines flagged, every other neighbor is safe to open.</li>
+<li><b>Learn the 1-2-1 pattern.</b> Three numbers 1, 2, 1 in a row along an edge usually mean that the two outer hidden squares are mines and the middle one is safe.</li>
+<li><b>Work along edges and corners.</b> Squares at the border have fewer neighbors, so their numbers give you stronger clues.</li>
+<li><b>Use the mine counter.</b> The counter at the top shows how many mines are left. Near the end of a game it can settle a situation that the numbers alone cannot.</li>
+<li><b>Guess only as a last resort.</b> If no safe move exists, pick the square that is least likely to be a mine, and avoid squares next to many numbers.</li>
+</ul>
+<h2>Frequently Asked Questions</h2>
+<p><b>Is the game free?</b> Yes. The game is free to play in your browser, and you do not need an account.</p>
+<p><b>Does the game save my data?</b> No. The game does not ask for personal information, and the state of a board is kept only while the page is open. Read our <a href="privacy.html">Privacy Policy</a> for details about advertising.</p>
+<p><b>What happens when I hit a mine?</b> The mines are revealed and the game ends. You may be offered one chance to revive after watching a short ad, or you can simply restart.</p>
+<p><b>Does it work on a phone?</b> Yes. The board is sized to fit your screen, and the controls are designed for touch.</p>
+<nav>
+<a href="privacy.html">Privacy Policy</a>
+<a href="about.html">About</a>
+<a href="contact.html">Contact</a>
+</nav>
+<p class="copy">&copy; 2026 minesweeeper.xyz</p>
+</main>
 <script>
 const LV=[[9,.16,8],[11,.21,10],[14,.26,13]];
 let R,C,M,cells,mine,open,flag,num,over,started,left,t0,timer,flagMode=false,level=0;
